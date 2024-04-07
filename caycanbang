@@ -1,0 +1,195 @@
+#include "thuvien_bai1_AVL.h"
+void init(AVLTREE &T) 
+{
+	T = NULL;
+}
+AVLTREE CreateNodeAVL(int info)
+{
+	AVLTREE p = new NODEAVL;
+	p->info = info;
+	p->left = NULL;
+	p->right = NULL;
+	p->height = 1;
+	return p;
+}
+void NLR(AVLTREE T)
+{
+}
+void LNR(AVLTREE T)
+{
+	if (T != NULL)
+	{
+		LNR(T->left);
+		cout << T->info << " ";
+		LNR(T->right);
+	}
+}
+void LRN(AVLTREE T)
+{
+}
+int Max(int a, int b) 
+{
+	return (a>b) ? a : b;
+}
+int height(AVLTREE T) 
+{
+	if (T == NULL) {
+		return 0;
+	}
+	return T->height;
+}
+int getCB(AVLTREE T)
+{
+	if (T == NULL)
+		return 0;
+	return height(T->left) - height(T->right);
+}
+void RotateRight(AVLTREE &T)
+{
+	if (T == NULL || T->left == NULL)
+	{
+		return;
+	}
+	AVLTREE x = T->left;
+	T->left = x->right;
+	x->right = T;
+	T->height = max(height(T->left), height(T->right)) + 1;
+	x->height = max(height(x->left), height(x->right)) + 1;
+	T = x;
+}
+void RotateLeft(AVLTREE &T)
+{
+	if (T == NULL || T->right == NULL)
+	{
+		return;
+	}
+	AVLTREE y = T->right;
+	T->right = y->left;
+	y->left = T;
+	T->height = max(height(T->left), height(T->right)) + 1;
+	y->height = max(height(y->left), height(y->right)) + 1;
+	T = y;
+}
+AVLTREE minValueNODEAVL(AVLTREE T)
+{
+	AVLTREE current = T;
+	while (current->left != NULL)
+		current = current->left;
+	return current;
+}
+bool search(AVLTREE T, int x)
+{	
+	if (T == NULL)
+		return false;
+	if (x < T->info)
+		return search(T->left, x);
+	else if (x > T->info)
+		return search(T->right, x);
+	else
+		return true;
+}
+AVLTREE InsertNode(AVLTREE &T, int x) 
+{
+	if (T == NULL)
+	{
+		return CreateNodeAVL(x);
+	}
+	if (x < T->info)
+	{
+		T->left=InsertNode(T->left, x);
+	}
+	else if (x > T->info)
+	{
+		T->right=InsertNode(T->right, x);
+	}
+	else
+	{
+		T->height = height(T);
+		int ValCB(getCB(T));
+		//kt 4 th
+		//trai trai
+		if (ValCB > 1 && x < T->left->info)
+			RotateRight(T);
+		//trai phai
+		else if (ValCB > 1 && x > T->left->info) {
+			RotateLeft(T->left);
+			RotateRight(T);
+		}
+		//phai phai 
+		else if (ValCB<-1 && x>T->right->info)
+			RotateLeft(T);
+		else if (ValCB < -1 && x < T->right->info)
+		{
+			RotateRight(T->right);
+			RotateLeft(T);
+		}
+	}
+	T->height = max(height(T->left), height(T->right)) + 1;
+	return T;
+}
+int DeleteNode(AVLTREE &T, int x) 
+{
+	if (T == NULL)
+	{
+		return 0;
+	}
+	if (x < T->info)
+	{
+		DeleteNode(T->left, x);
+	}
+	else if (x > T->info)
+	{
+		DeleteNode(T->right, x);
+	}
+	else
+	{
+		if (T->right == NULL)
+		{
+			AVLTREE parent = T;
+			T =  T->left;
+			delete parent;
+		}
+		else if (T->left == NULL)
+		{
+			AVLTREE parent = T;
+			T = T->right;
+			delete parent;
+		}
+		else if (T->right != NULL && T->left != NULL)
+		{
+			AVLTREE parent = minValueNODEAVL(T->right);
+			T->info = parent->info;
+			DeleteNode(T->right, parent->info);
+		}
+	}
+	if (T == NULL)
+	{
+		return 0;
+	}
+	T->height = max(height(T->left), height(T->right)) + 1;
+	int ValCB(getCB(T));
+	//kt 4 th
+	//trai trai
+	if (ValCB > 1 && x < T->left->info)
+		RotateRight(T);
+	//trai phai
+	else if (ValCB > 1 && x > T->left->info) {
+		RotateLeft(T->left);
+		RotateRight(T);
+	}
+	//phai phai 
+	else if (ValCB<-1 && x>T->right->info)
+		RotateLeft(T);
+	else if (ValCB < -1 && x < T->right->info)
+	{
+		RotateRight(T->right);
+		RotateLeft(T);
+	}
+	return 1;
+}
+//int WriteFile(AVLTREE T, char* filename)
+//{
+//}
+//int ReadFile(AVLTREE &T, char* filename)
+//{
+//}
